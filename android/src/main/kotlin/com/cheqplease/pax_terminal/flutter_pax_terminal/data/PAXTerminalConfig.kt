@@ -1,4 +1,8 @@
 package com.cheqplease.pax_terminal.flutter_pax_terminal.data
 
-class PAXterminalConfig {
-}
+data class PAXTerminalConfig(
+    val destinationIP: String,
+    val destinationPort : String,
+    val timeout : String,
+    val connectionType : String
+)
