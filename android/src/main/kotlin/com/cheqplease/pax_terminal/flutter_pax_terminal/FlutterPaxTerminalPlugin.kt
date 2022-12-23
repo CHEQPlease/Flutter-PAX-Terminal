@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
+class FlutterPaxTerminalPlugin : FlutterPlugin, MethodCallHandler {
 
   private lateinit var applicationContext: Context
   private lateinit var flutterAssets: FlutterPlugin.FlutterAssets
@@ -42,14 +42,19 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
 
     if (call.method == "init") {
 
-      val certPath = call.argument<String>("cert_path")!!
+      val destinationIP = call.argument<String>("destinationIP")!!
+      val destinationPort = call.argument<String>("destinationPort")!!
+      val timeout = call.argument<String>("timeout")!!
+      val terminalID = call.argument<String>("terminalID")!!
+      val connectionType = call.argument<String>("connectionType")!!
 
       terminalConfig = PAXTerminalConfig(
-        destinationIP = call.argument<String>("endpoint")!!,
-        destinationPort = call.argument<String>("endpoint")!!,
-        timeout = call.argument<String>("endpoint")!!,
-        connectionType = call.argument<String>("endpoint")!!
-      )
+        destinationIP = destinationIP,
+        destinationPort = destinationPort,
+        timeout = timeout,
+        terminalID = terminalID,
+        connectionType = connectionType)
+
       PAXTerminalManager.init(terminalConfig,applicationContext)
 
     } else if (call.method == "authorize_transaction") {
@@ -63,7 +68,11 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
       if (amount != null && captureType!=null && transactionId!=null && currency!=null && reqAmount!=null) {
         GlobalScope.launch(Dispatchers.IO) {
           try {
-
+            PAXTerminalManager.authorizeTransaction(
+              terminalId = terminalConfig.terminalID,
+              transactionId = transactionId,
+              amountInMinorUnit = currency,
+              )
           } catch (e: Exception) {
             result.error("FAILED","TXN FAILED",e.message)
             println(e.stackTraceToString())
@@ -79,7 +88,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
       if (txnId!=null && cancelTxnId!=null) {
         GlobalScope.launch(Dispatchers.IO) {
           try {
-
+            result.success(true)
           } catch (e: Exception) {
             println(e.stackTraceToString())
           }

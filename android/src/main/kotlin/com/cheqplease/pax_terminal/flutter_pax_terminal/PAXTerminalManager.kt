@@ -16,9 +16,12 @@ object PAXTerminalManager {
 
     fun authorizeTransaction(terminalId: String, transactionId: String, amountInMinorUnit : String){
 
+
+
     }
 
     fun cancelInProgressTransaction(terminalId: String, transactionId: String, txnIdToCancel: String) {
+
 
 
     }
