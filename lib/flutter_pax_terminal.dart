@@ -23,7 +23,7 @@ typedef OnSuccess<T> = Function(T response);
 typedef OnFailure<T> = Function(T response);
 
 
-class FlutterAdyen {
+class FlutterPAX {
   static const MethodChannel _channel = MethodChannel('com.cheqplease.pax_terminal/channel');
   static const String _methodInit = "init";
   static const String _methodAuthorizeTransaction = "authorize_transaction";
@@ -40,7 +40,9 @@ class FlutterAdyen {
       {
         required double amount,
         required String transactionId,
-        required String currency, CaptureType captureType =  CaptureType.delayed,
+        required String currency,
+        required String cardType,
+        CaptureType captureType =  CaptureType.delayed,
         OnSuccess<String>? onSuccess,
         OnFailure<String>? onFailure,
       }) async {
@@ -49,7 +51,8 @@ class FlutterAdyen {
       "amount" : amount,
       "transactionId" : transactionId,
       "currency" : currency,
-      "captureType" : captureType.name
+      "captureType" : captureType.name,
+      "cardType" : cardType
     }).then((value){
       onSuccess!(value);
     }).catchError((value){

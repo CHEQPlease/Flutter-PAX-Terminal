@@ -24,7 +24,7 @@ class PaxTerminalConfig {
     map['destinationPort'] = destinationPort;
     map['timeout'] = timeout;
     map['terminalId'] = terminalId;
-    map['connectionType'] = terminalId;
+    map['connectionType'] = connectionType;
     return map;
   }
 

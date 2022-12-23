@@ -33,7 +33,7 @@ class FlutterPaxTerminalPlugin : FlutterPlugin, MethodCallHandler {
   private fun onAttachedToEngine(applicationContext: Context, messenger: BinaryMessenger, flutterAssets: FlutterPlugin.FlutterAssets) {
     this.applicationContext = applicationContext
     this.flutterAssets = flutterAssets
-    channel = MethodChannel(messenger, "com.itsniaz.adyenterminal/channel")
+    channel = MethodChannel(messenger, "com.cheqplease.pax_terminal/channel")
     channel.setMethodCallHandler(this)
   }
 
@@ -45,7 +45,7 @@ class FlutterPaxTerminalPlugin : FlutterPlugin, MethodCallHandler {
       val destinationIP = call.argument<String>("destinationIP")!!
       val destinationPort = call.argument<String>("destinationPort")!!
       val timeout = call.argument<String>("timeout")!!
-      val terminalID = call.argument<String>("terminalID")!!
+      val terminalID = call.argument<String>("terminalId")!!
       val connectionType = call.argument<String>("connectionType")!!
 
       terminalConfig = PAXTerminalConfig(
@@ -61,18 +61,32 @@ class FlutterPaxTerminalPlugin : FlutterPlugin, MethodCallHandler {
 
       val amount = call.argument<Double>("amount")
       val captureType = call.argument<String>("captureType")
+      val cardType = call.argument<String>("cardType")
       val transactionId = call.argument<String>("transactionId")
       val currency = call.argument<String>("currency")
       val reqAmount = call.argument<Double>("amount")
 
-      if (amount != null && captureType!=null && transactionId!=null && currency!=null && reqAmount!=null) {
+      if (amount != null && captureType!=null && transactionId!=null && currency!=null && reqAmount!=null && cardType!=null) {
         GlobalScope.launch(Dispatchers.IO) {
           try {
             PAXTerminalManager.authorizeTransaction(
-              terminalId = terminalConfig.terminalID,
               transactionId = transactionId,
-              amountInMinorUnit = currency,
-              )
+              amountInMinorUnit = reqAmount,
+              cardType = cardType,
+              captureType = captureType,
+              paymentSuccessHandler = object : PaymentSuccessHandler<String>{
+                override fun onSuccess(response: String) {
+                  TODO("Not yet implemented")
+                }
+              },
+
+              paymentFailureHandler = object : PaymentFailureHandler<String>{
+                override fun onFailure(response: String) {
+                  result.error("DECLINED","TXN DECLINED",response)
+                }
+              }
+
+            )
           } catch (e: Exception) {
             result.error("FAILED","TXN FAILED",e.message)
             println(e.stackTraceToString())
